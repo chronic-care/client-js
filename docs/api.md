@@ -59,6 +59,7 @@ These should **ONLY** be used in development.
 |width|`number`| The width of the authorization popup window. Only used in browsers and if the `target` option is set to "popup". Defaults to `800`.
 |height|`number`| The height of the authorization popup window. Only used in browsers and if the `target` option is set to "popup". Defaults to `720`.
 |issMatch|`string` or `RegExp` or `function`|Since version `2.3.11`, in case of EHR launch the `authorize` function can also be called with an array of options. This makes it possible to pre-configure an app to be launch-able from multiple EHR systems. The correct configuration will be picked based on the passed `iss` url parameter. [Read More](http://docs.smarthealthit.org/client-js/open_servers#2-using-multiple-launch-configurations)
+|usePKCE|`boolean`| If `true`, the app will use `PKCE`(Proof Key for Code Exchange) along with the `Authorization Code` flow.
 
 
 ### ready([onSuccess [, onError]]) `Promise<Client>`

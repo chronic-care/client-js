@@ -6,6 +6,7 @@ import {
     randomString,
     getAndCache,
     fetchConformanceStatement,
+    createPKCEChallenge,
     getAccessTokenExpiration,
     getTargetWindow
 } from "./lib";
@@ -220,7 +221,8 @@ export async function authorize(
         client_id,
         target,
         width,
-        height
+        height,
+        usePKCE
     } = params;
 
     let {
@@ -273,12 +275,22 @@ export async function authorize(
         scope += " launch";
     }
 
+    let pkceObject;
+    if (usePKCE) {
+        if (clientSecret) {
+            throw new Error("PKCE should only be used by public single-page web apps or native apps without a client secret");
+        }
+        // Generate pkce object if that is enabled
+        pkceObject = createPKCEChallenge();
+
+    }
+
     if (isBrowser()) {
         const inFrame = isInFrame();
         const inPopUp = isInPopUp();
 
         if ((inFrame || inPopUp) && completeInTarget !== true && completeInTarget !== false) {
-            
+
             // completeInTarget will default to true if authorize is called from
             // within an iframe. This is to avoid issues when the entire app
             // happens to be rendered in an iframe (including in some EHRs),
@@ -312,7 +324,8 @@ export async function authorize(
         clientSecret,
         tokenResponse: {},
         key: stateKey,
-        completeInTarget
+        completeInTarget,
+        pkce: pkceObject
     };
 
     const fullSessionStorageSupport = isBrowser() ?
@@ -376,6 +389,12 @@ export async function authorize(
     // also pass this in case of EHR launch
     if (launch) {
         redirectParams.push("launch=" + encodeURIComponent(launch));
+    }
+
+    // if pkce is enabled, pass the pkce parameters
+    if (state.pkce) {
+        redirectParams.push("code_challenge=" + state.pkce.code_challenge);
+        redirectParams.push("code_challenge_method=S256");
     }
 
     redirectUrl = state.authorizeUri + "?" + redirectParams.join("&");
@@ -639,7 +658,7 @@ export async function completeAuth(env: fhirclient.Adapter): Promise<Client>
  */
 export function buildTokenRequest(env: fhirclient.Adapter, code: string, state: fhirclient.ClientState): RequestInit
 {
-    const { redirectUri, clientSecret, tokenUri, clientId } = state;
+    const { redirectUri, clientSecret, tokenUri, clientId, pkce } = state;
 
     if (!redirectUri) {
         throw new Error("Missing state.redirectUri");
@@ -675,6 +694,10 @@ export function buildTokenRequest(env: fhirclient.Adapter, code: string, state: 
     } else {
         debug("No clientSecret found in state. Adding the clientId to the POST body");
         requestOptions.body += `&client_id=${encodeURIComponent(clientId)}`;
+        if (pkce) {
+            debug("PKCE is enabled for this auth. Adding the code_verifier to the POST body");
+            requestOptions.body += `&code_verifier=${(pkce.code_verifier)}`;
+        }
     }
 
     return requestOptions as RequestInit;

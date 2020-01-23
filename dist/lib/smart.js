@@ -216,7 +216,8 @@ async function authorize(env, params = {}, _noRedirect = false) {
     client_id,
     target,
     width,
-    height
+    height,
+    usePKCE
   } = params;
   let {
     iss,
@@ -262,6 +263,17 @@ async function authorize(env, params = {}, _noRedirect = false) {
     scope += " launch";
   }
 
+  let pkceObject;
+
+  if (usePKCE) {
+    if (clientSecret) {
+      throw new Error("PKCE should only be used by public single-page web apps or native apps without a client secret");
+    } // Generate pkce object if that is enabled
+
+
+    pkceObject = lib_1.createPKCEChallenge();
+  }
+
   if (isBrowser()) {
     const inFrame = isInFrame();
     const inPopUp = isInPopUp();
@@ -292,7 +304,8 @@ async function authorize(env, params = {}, _noRedirect = false) {
     clientSecret,
     tokenResponse: {},
     key: stateKey,
-    completeInTarget
+    completeInTarget,
+    pkce: pkceObject
   };
   const fullSessionStorageSupport = isBrowser() ? lib_1.getPath(env, "options.fullSessionStorageSupport") : true;
 
@@ -350,6 +363,12 @@ async function authorize(env, params = {}, _noRedirect = false) {
 
   if (launch) {
     redirectParams.push("launch=" + encodeURIComponent(launch));
+  } // if pkce is enabled, pass the pkce parameters
+
+
+  if (state.pkce) {
+    redirectParams.push("code_challenge=" + state.pkce.code_challenge);
+    redirectParams.push("code_challenge_method=S256");
   }
 
   redirectUrl = state.authorizeUri + "?" + redirectParams.join("&");
@@ -616,7 +635,8 @@ function buildTokenRequest(env, code, state) {
     redirectUri,
     clientSecret,
     tokenUri,
-    clientId
+    clientId,
+    pkce
   } = state;
 
   if (!redirectUri) {
@@ -651,6 +671,11 @@ function buildTokenRequest(env, code, state) {
   } else {
     debug("No clientSecret found in state. Adding the clientId to the POST body");
     requestOptions.body += `&client_id=${encodeURIComponent(clientId)}`;
+
+    if (pkce) {
+      debug("PKCE is enabled for this auth. Adding the code_verifier to the POST body");
+      requestOptions.body += `&code_verifier=${pkce.code_verifier}`;
+    }
   }
 
   return requestOptions;

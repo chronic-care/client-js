@@ -3,9 +3,11 @@
  * are defined here so that tests can import this library and test them.
  */
 
+import * as Base64 from "crypto-js/enc-base64";
 import HttpError from "./HttpError";
 import { patientParams } from "./settings";
 import { fhirclient } from "./types";
+import SHA256 = require("crypto-js/sha256");
 const debug = require("debug");
 
 // $lab:coverage:off$
@@ -281,7 +283,26 @@ export function randomString(
 }
 
 /**
- * Decodes a JWT token and returns it's body.
+ * Generate a PKCE challenge pair with verifier length to 43
+ * @category Utility
+ */
+export function createPKCEChallenge(): fhirclient.PKCEObject {
+
+    const charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+    const verifier = randomString(43, charSet);
+    const challenge = Base64.stringify(SHA256(verifier))
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+
+    return {
+        code_verifier: verifier,
+        code_challenge: challenge,
+    };
+}
+
+/**
+ * Decodes a JWT token and returns its body.
  * @param token The token to read
  * @param env An `Adapter` or any other object that has an `atob` method
  * @category Utility

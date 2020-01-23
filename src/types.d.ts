@@ -224,7 +224,7 @@ declare namespace fhirclient {
      * want to receive the raw response object. Any other option will be passed
      * to the underlying `fetch` call.
      */
-    type RequestFunction<R = any> = <O extends IncludeResponseHint = {}>(requestOptions?: O) => 
+    type RequestFunction<R = any> = <O extends IncludeResponseHint = {}>(requestOptions?: O) =>
         Promise<O["includeResponse"] extends true ? CombinedFetchResult<R> : R>;
 
     /**
@@ -247,8 +247,8 @@ declare namespace fhirclient {
     interface CombinedFetchResult<T = fhirclient.JsonObject | string> {
         body?: T
         response: Response
-    } 
-    
+    }
+
     /**
      * The return type of the lib.request function
      */
@@ -389,6 +389,24 @@ declare namespace fhirclient {
          * received from the server.
          */
         expiresAt?: number;
+
+        /**
+         * In case pkce is enabled. Create the pkce object for the auth flow
+         */
+        pkce?: PKCEObject;
+    }
+
+    interface PKCEObject {
+        /**
+         * This is a cryptographically random string using the characters
+         * A-Z, a-z, 0-9, and the punctuation characters -._~ (hyphen, period,
+         * underscore, and tilde), between 43 and 128 characters long
+         */
+        code_verifier: string;
+        /**
+         * BASE64-URL-encoded string of the SHA256 hash of the `code_verifier`
+         */
+        code_challenge: string;
     }
 
     /**
@@ -407,7 +425,7 @@ declare namespace fhirclient {
         iss?: string;
 
         /**
-         * Can be used to verify that the app is being launched against certain 
+         * Can be used to verify that the app is being launched against certain
          * servers. This is especially useful when working with multiple EHR
          * configurations. Can be a string (in which case it will be expected to
          * match the provided ISS exactly), a regular expression to test against
@@ -536,6 +554,12 @@ declare namespace fhirclient {
          * [[authorize]] was called.
          */
         completeInTarget?: boolean;
+
+        /**
+         * If `true`, the app will execute an Authorization Code Grant Flow with PKCE
+         * https://www.oauth.com/oauth2-servers/pkce/authorization-request/
+         */
+        usePKCE?: boolean;
     }
 
     /**

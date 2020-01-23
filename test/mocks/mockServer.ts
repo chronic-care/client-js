@@ -12,6 +12,7 @@ interface App extends Application {
 const app: App = express();
 export default app;
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 
 const mocks: any[] = [];
 
