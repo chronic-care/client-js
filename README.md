@@ -2,7 +2,9 @@ SMART on FHIR JavaScript Library
 ================================
 
 This is a JavaScript library for connecting SMART apps to Fhir servers.
-It works both in browsers (IE10+) and on the server (NodeJS).
+It works both in browsers (IE10+) and on the server (NodeJS). 
+
+> This fork supports authenticating public clients with Authorization servers that require PKCE.
 
 ## Installation
 

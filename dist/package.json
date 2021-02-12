@@ -1,6 +1,6 @@
 {
-  "name": "fhirclient",
-  "version": "2.3.11",
+  "name": "@chronic-care/fhirclient",
+  "version": "2.3.14",
   "description": "JavaScript client for Fast Healthcare Interoperability Resources",
   "author": "SMART Health IT <support@smarthealthit.org> (https://smarthealthit.org/)",
   "contributors": [
@@ -39,10 +39,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smart-on-fhir/client-js.git"
+    "url": "git+https://github.com/chronic-care/client-js.git"
   },
   "bugs": {
-    "url": "https://github.com/smart-on-fhir/client-js/issues"
+    "url": "https://github.com/chronic-care/client-js/issues"
   },
   "homepage": "http://docs.smarthealthit.org/client-js/"
 }
