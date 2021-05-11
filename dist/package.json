@@ -1,6 +1,6 @@
 {
   "name": "@chronic-care/fhirclient",
-  "version": "2.3.14",
+  "version": "2.3.15",
   "description": "JavaScript client for Fast Healthcare Interoperability Resources",
   "author": "SMART Health IT <support@smarthealthit.org> (https://smarthealthit.org/)",
   "contributors": [

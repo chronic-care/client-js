@@ -2566,7 +2566,7 @@ class Client {
     const idToken = this.getIdToken();
 
     if (idToken) {
-      return idToken.profile;
+      return idToken.fhirUser || idToken.profile;
     }
 
     return null;
